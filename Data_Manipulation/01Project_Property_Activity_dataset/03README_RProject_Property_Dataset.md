@@ -5,6 +5,5 @@ The data contain sales prices for houses and units with 1, 2, 3, 4, and 5 bedroo
 The data are: date of sale; price in dollars; property type (unit or house); number of bedrooms
 
 
-OR check the R-Studio Cloud for scripts: \
-[http://Rpubs](https://rpubs.com/KemanXiang/1446009)
+OR check my [R-Studio Cloud](https://rpubs.com/KemanXiang/1446009) for scripts: \
 
