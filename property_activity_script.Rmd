@@ -1,0 +1,149 @@
+---
+title: "MGT 205 in class - Property"
+author: "Keman Xiang"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview
+## In this project, we will use a data set of property values from 2007 - 2019. The data contain sales prices for houses and units with 1, 2, 3, 4, and 5 bedrooms.
+### The data are: date of sale; price in dollars; property type (unit or house); number of bedrooms
+
+## START HERE
+## Run the code block below.
+```{r}
+library(tidyverse)
+```
+
+## Load the property.csv file into a data frame.
+```{r}
+prop <- read_csv('property.csv')
+```
+
+## 1. How many rows and columns are there in the data set?
+```{r}
+dim(prop)
+```
+
+## 2. Calculate the summary statistics for the "price" column. 
+```{r}
+head(prop)
+```
+```{r}
+summary(prop$price)
+```
+
+## 3. Remove the unwanted variables V1 and V2 from the data set. Show the head() of your data set to confirm that the unwanted variables are gone.
+```{r}
+prop <- prop [,-(5:6)]
+head(prop)
+```
+
+## 4a. Are there any NA values in the data set? 
+```{r}
+any(is.na(prop))
+```
+
+## 4b. If any NA values are in the "price" column, replace it with the mean price. 
+```{r}
+prop$price[which(is.na(prop$price))] <- mean(prop$price, na.rm=TRUE)
+```
+
+## 4c. If any NA values are in any of the other columns, remove the entire row from the data set. 
+```{r}
+prop<- na.omit(prop)
+```
+
+## 4d. Show that there are no more NA values in the data set. 
+```{r}
+any(is.na(prop))
+```
+
+## 5. Rename the "saledate" column to "date". Show the head() of your data set to confirm the change.
+```{r}
+colnames(prop)[1] <- 'date'
+head(prop)
+```
+
+## 6. Run the code below to convert the variable "bedrooms" into a factor variable using the as.factor() function. Replace "prop" in the code with whatever you called your data set. You do not need to do anything else in this question after you edit and run the code.
+```{r}
+prop$bedrooms<-as.factor(prop$bedrooms)
+```
+
+## 7a. Calculate and show the mean price of the house properties and unit properties. 
+```{r}
+prop %>%
+ group_by(type) %>%
+ summarise(mean_price=mean(price))
+```
+
+## 7b. Display the two values from 7a as a bar chart. Be sure to include useful information to help understand your chart. 
+```{r}
+prop %>%
+ group_by(type) %>%
+ summarise(mean_price=mean(price)) %>%
+ ggplot(aes(x=type,y=mean_price,fill= type)) +
+ geom_bar(stat='identity') +
+ labs(x='Type', y='Mean Price', title= 'Mean price of properties')
+```
+
+## 8. Calculate the total income for each of the bedroom types (hint: group by). Sort the output from highest to lowest total income. 
+```{r}
+prop %>%
+ group_by(bedrooms) %>%
+ summarise(total_income=sum(price)) %>%
+ arrange(desc(total_income))
+```
+
+## 9. Which property and bedroom type COMBINATION draws the highest income?
+```{r}
+prop %>%
+ group_by(type, bedrooms) %>%
+ summarise(total_income=sum(price)) %>%
+ arrange(desc(total_income)) %>%
+ head(1)
+```
+
+## 10. Run the code below to create a new column "year" which is the year from the sales date. Replace "prop" in the code with whatever you called your data set. You do not need to do anything else in this question after you edit and run the code. 
+
+```{r}
+prop$year<-format(as.Date(prop$date, format="%d/%m/%Y"),"%Y")
+```
+```{r}
+head(prop)
+```
+
+## 11. Find the years having a total income of more than $16,000,000 from selling properties. 
+```{r}
+prop %>%
+ group_by(year) %>%
+ summarise(total_income=sum(price)) %>%
+ filter(total_income >16000000)
+```
+
+## 12. How many houses have been sold after 2015 for a price higher than $1,000,000?
+```{r}
+prop %>% filter(type=='house' & year>2015 & price>1000000) %>% summarise(n =n())
+```
+
+## 13. Display the income distribution in each property type over the years using a stacked column chart. Be sure to include useful information to help your TA understand your chart. 
+```{r}
+prop %>% group_by(year,type) %>% summarise(total_price =sum(price)) %>% 
+ ggplot(aes(x = year, y = total_price, fill = type)) +
+ geom_bar(stat = "identity") + theme_classic() + 
+ labs( x = "Year", y = "Income", title = "Income from the houses and units")
+```
+
+## 14. Find the number of UNIT sales per year for the year range 2010 - 2019. Sort the output from lowest to highest sales. 
+```{r}
+prop%>% filter(type=='unit' & year>=2010 & year<=2019) %>% group_by(year) %>% summarise(n =n()) %>% arrange(n)
+```
+```{r}
+tinytex::install_tinytex()
+```
+
