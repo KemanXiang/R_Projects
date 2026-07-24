@@ -1,0 +1,396 @@
+---
+title: "MGT 205 in class - Star Wars"
+author: "Keman Xiang"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Basic Functionality of R and Variables 
+
+## Q1. Data Types 
+### a)
+R in its most basic form can be used as a calculator. Write some coded math expressions using at least three different operators (including at least one trigonometric function).
+
+Note: R follows the standard order of operations, but this can be controlled by wrapping any expression in ().
+
+```{r}
+2/1
+```
+
+
+```{r}
+5+2
+```
+```{r}
+3*6
+```
+
+
+### b)
+Name and give an example of the five base data types in R:
+
+```{r}
+# Character
+'some text'
+```
+```{r}
+# Numeric
+123.456
+```
+```{r}
+# Integer
+1234L
+```
+```{r}
+# Logical
+TRUE
+```
+```{r}
+# Complex
+2 + 3i
+```
+
+
+### c) 
+Construct a vector in R.
+
+A vector is a data structure in R that contains multiple entries of the same type.
+```{r}
+c('hello','mgt','205')
+```
+
+
+## Q2. Variables
+Variables are a reference to data in R and can be assigned any valid data structure. Variables can be used anywhere the data that they are referencing could be and serve as the building blocks for working with data in R as they can be composed.
+
+### a) 
+Create numeric variables x and y independently, then add x and y to a new variable z.
+
+
+```{r}
+x <- 1
+y <- 5
+z <- x+y
+z
+```
+
+
+## Q3. Functions
+* Built in functions
+R's built in functions known as 'base R' form an incredibly powerful statistical package that can be used in a range of ways to extract information from data. Here we cover the basic usage of very common R functions.
+
+### a)
+
+#### i)
+Create a sequence from 1 up to 10
+
+```{r}
+seq(1,10)
+```
+
+#### ii)
+What is the sum of all numbers from 1 to 12345?
+
+```{r}
+sum(1:12345)
+```
+
+
+### b)
+Generate 100 normally distributed random numbers
+```{r}
+rnorm(100)
+```
+
+### c)
+
+#### i)
+Sample 30 random whole numbers between 1 and 500
+```{r}
+sample(seq(1,500),30)
+```
+
+#### ii)
+Choose and show 10 randomly generated normally distributed numbers
+```{r}
+sample(rnorm(10))
+```
+
+
+
+### d)
+Simulate flipping a coin 100 times with with 1s and 0s standing for heads and tails respectively. Count the number of heads.
+```{r}
+sum(sample(c(0,1),size=100,replace=TRUE))
+```
+
+
+
+#### R Packages and functions
+
+'R packages' are collections of useful functions created by academics and industry professionals that have been published openly for use by anyone. One of the most widely used collection of packages is the tidyverse, which provides a consistent way of working with data from the beginning of an analysis to the end. 
+
+
+#### User defined functions
+
+Functions can be defined as needed to simplify operations or reduce repetition in code. The function() keyword is used to do this. 'Arguments' are passed to functions when they are called with parentheses and are separated by commas. These arguments can be accessed inside the function.
+
+
+### e)
+
+Define a function called add_one that adds 1 to its input.
+```{r}
+add_one <- function(num){
+ num + 1
+}
+```
+
+
+### f)
+
+Define a function that takes 2 arguments and randomly returns one.
+
+```{r}
+pick_one <- function(one, two){
+ vec <- c(one, two)
+ sample(vec, size = 1)
+}
+```
+
+
+
+# Reading Data and Working with Data Frames
+
+From here on out we will be using the tidyverse. The tidyverse provides a consistent way to work with data, and extends the functionality of base R. In particular, we will be using dplyr for data processing, along with ggplot2 for visualization and readr for data reading.
+
+## Q1. Reading Data
+Run the code block below.
+```{r}
+library(tidyverse)
+```
+
+### a)
+Load in the starwars data.
+
+```{r}
+starwars = read_csv("starwars.csv")
+```
+
+### b)
+List the first 6 rows of starwars.
+
+```{r}
+head(starwars)
+```
+
+### c) 
+Get the number of rows and number of columns in starwars.
+
+```{r}
+nrow(starwars)
+```
+```{r}
+ncol(starwars)
+```
+
+```{r}
+dim(starwars)
+```
+
+
+## Q2. Data Pipelines ( %>% )
+
+Often multiple processing steps are required for data frames, but the intermediate results are often not that important. There are a number of ways to apply functions in succession, but the preferred standard is to use the forward pipe operator %>%. This operator takes whatever expression is on its left hand side and uses this expression as the first argument of the function on its right hand side.
+i.e. 
+x %>% f %>% g %>% h is equivalent to h(g(f(x)))
+
+https://r4ds.had.co.nz/pipes.html
+https://magrittr.tidyverse.org
+
+### a)
+Take the head of starwars and find how many rows are in it.
+```{r}
+starwars %>% 
+ head() %>%
+ nrow()
+```
+
+
+
+
+
+## Q3. Working with Data Frames
+
+### a)
+
+#### i)
+
+How many males are in the data set?
+```{r}
+starwars %>%
+  filter(sex == 'male') %>%
+  nrow()
+```
+
+#### ii)
+
+How many humans with blue eyes are in the data set?
+```{r}
+starwars %>%
+  filter(species == 'Human', eye_color == 'blue') %>%
+  nrow()
+```
+
+
+
+### b)
+List the tallest 3 humans, showing only name and height columns.
+```{r}
+starwars %>%
+  filter(species == 'Human') %>%
+  arrange(desc(height)) %>%
+  head(3) %>%
+  select(name, height)
+```
+
+
+### c)
+Show the mean height and mass of humans.
+
+#### i)
+```{r}
+starwars %>%
+  filter(species == 'Human') %>%
+  summarise(
+    mean_height = mean(height, na.rm = TRUE),
+    mean_mass = mean(mass, na.rm = TRUE)
+  )
+
+```
+
+
+#### ii)
+Show the mean height and mass of humans grouped by sex.
+
+```{r}
+starwars %>%
+  filter(species == 'Human') %>%
+  group_by(sex) %>%
+  summarise(
+    mean_height = mean(height, na.rm = TRUE),
+    mean_mass = mean(mass, na.rm = TRUE)
+  )
+```
+
+
+
+### d)
+Get the 2 shortest masculine and feminine characters, displaying only name, height and gender columns (you must remove missing values for gender).
+```{r}
+starwars %>%
+  filter(gender == 'masculine') %>%
+  arrange(height) %>%
+  head(2) %>%
+  select(name, height, gender)
+
+starwars %>%
+  filter(gender == 'feminine') %>%
+  arrange(height) %>%
+  head(2) %>%
+  select(name, height, gender)
+```
+
+
+
+# Data Visualization
+
+Base R has its own plotting utilities, but they are rarely for creating presentable visualizations as they are difficult to configure and do not have consistent behavior for different plot types. We will be using the ggplot2 package, which is the industry standard for data visualization as it uses a consistent 'grammar' to construct all types of visualizations, produces high quality outputs by default and is easy to configure.
+
+We will also be using the palmerpenguins educational data package for the data underlying our plots.
+
+Run the code block below.
+```{r}
+#install.packages("palmerpenguins")
+library(palmerpenguins)
+```
+
+## Q1)
+
+### a)
+
+Create a scatter plot with bill depth on the x axis and body mass on the y axis.
+```{r}
+penguins %>% 
+ ggplot(aes(x = bill_depth_mm, y = body_mass_g)) + 
+ geom_point()
+```
+
+
+### b)
+Color this scatter plot by species.
+```{r}
+penguins %>% 
+ ggplot(aes(x = bill_depth_mm, y = body_mass_g, color = species)) + 
+ geom_point()
+```
+
+
+### c)
+Add an appropriate human-readable title, along with axis and legend labels.
+```{r}
+penguins %>% 
+ ggplot(aes(x = bill_depth_mm, y = body_mass_g, color = species)) + 
+ geom_point() + 
+ ggtitle("Body Mass vs Bill Depth for Penguin Species") + 
+ labs(x = "Bill Depth (mm)", y = "Body Mass (g)", color = 'Penguin Species')
+```
+
+
+## Q2
+
+Construct a filled bar chart of species, filled by island.
+
+```{r}
+penguins %>% 
+ ggplot(aes(x = species, fill = island)) + 
+ geom_bar()
+```
+
+
+
+## Q3
+
+### a)
+
+Construct a histogram of flipper length.
+
+```{r}
+penguins %>% 
+ ggplot(aes(x = flipper_length_mm)) + 
+ geom_histogram()
+```
+
+### b)
+
+Facet this histogram by species
+
+```{r}
+penguins %>% 
+ ggplot(aes(x = flipper_length_mm)) + 
+ geom_histogram() + 
+ facet_wrap(~species)
+```
+
+### c)
+
+Compare the flipper length distributions between different species using density geom with an alpha.
+```{r}
+penguins %>% 
+ ggplot(aes(x = flipper_length_mm, fill = species)) + 
+ geom_density(alpha = 0.2)
+```
+
