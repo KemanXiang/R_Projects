@@ -520,9 +520,7 @@ pressure among those with heart disease is higher or not.</h4>
 <div id="b.-interpret-these-results.-statistically-is-blood-pressure-higher-among-those-with-heart-disease-how-can-you-tell" class="section level4">
 <h4>4b. Interpret these results. Statistically, is blood pressure higher
 among those with heart disease? How can you tell?</h4>
-<pre class="r"><code>#The results are statistically significant,
-#Because the p-value = 0.9936 &gt; significance threshold 0.05, we can not reject the null hypothesis(H0).
-#Because the null hypothesis(H0) is that true difference in means between group 0 and group 1 is equal or more than 0, and the alternative hypothesis(H1) is that true difference in means between group 0 and group 1 is less than 0, we reach the conclusion that true difference in means between group 0 and group 1 is equal or more than 0 (H0). Blood pressure is higher among those with heart disease.</code></pre>
+<pre class="r"><code>#The results are not statistically significant. We fail to reject the null hypothesis. There is insufficient evidence to conclude that resting blood pressure is higher among individuals with heart disease.</code></pre>
 </div>
 </div>
 </div>
@@ -539,38 +537,38 @@ heart_test &lt;- heart[-sample_indexes, ]</code></pre>
 <div id="b.-construct-a-linear-regression-model-to-predict-for-blood-pressure." class="section level4">
 <h4>5b. Construct a LINEAR regression model to predict for blood
 pressure.</h4>
-<pre class="r"><code>fit &lt;- lm(trestbps ~ ., data = heart)
+<pre class="r"><code>fit &lt;- lm(trestbps ~ ., data = heart_train)
 summary(fit)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = trestbps ~ ., data = heart)
+## lm(formula = trestbps ~ ., data = heart_train)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -35.522 -10.750  -1.928  10.413  56.525 
+## -34.531 -11.214  -2.583  10.220  52.703 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) 86.92336   12.85367   6.763 7.51e-11 ***
-## age          0.47413    0.12248   3.871 0.000134 ***
-## sex         -2.98074    2.25394  -1.322 0.187060    
-## cp           1.73933    1.08254   1.607 0.109210    
-## chol         0.01111    0.01966   0.565 0.572325    
-## fbs          6.68874    2.75185   2.431 0.015681 *  
-## restecg     -1.92400    1.86127  -1.034 0.302140    
-## thalach      0.10257    0.05296   1.937 0.053752 .  
-## exang        1.55689    2.42349   0.642 0.521114    
-## oldpeak      2.16359    1.07255   2.017 0.044594 *  
-## slope        0.08129    1.98643   0.041 0.967384    
-## ca          -0.37861    1.05455  -0.359 0.719836    
-## thal         0.42037    1.69244   0.248 0.804018    
-## target      -4.32024    2.72833  -1.583 0.114407    
+## (Intercept) 82.27851   14.69977   5.597 6.66e-08 ***
+## age          0.48965    0.14343   3.414 0.000767 ***
+## sex         -2.98269    2.68222  -1.112 0.267383    
+## cp           3.09584    1.26592   2.446 0.015276 *  
+## chol         0.03750    0.02420   1.549 0.122797    
+## fbs          5.31727    3.01292   1.765 0.079026 .  
+## restecg     -1.60514    2.22819  -0.720 0.472082    
+## thalach      0.10656    0.05999   1.776 0.077120 .  
+## exang        0.18955    2.73809   0.069 0.944875    
+## oldpeak      1.06635    1.28801   0.828 0.408649    
+## slope       -1.47851    2.34178  -0.631 0.528479    
+## ca           0.57162    1.22524   0.467 0.641308    
+## thal         0.57033    1.91458   0.298 0.766080    
+## target      -6.66474    3.16091  -2.108 0.036158 *  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 16.5 on 289 degrees of freedom
-## Multiple R-squared:  0.1531, Adjusted R-squared:  0.115 
-## F-statistic: 4.018 on 13 and 289 DF,  p-value: 4.573e-06</code></pre>
+## Residual standard error: 16.26 on 213 degrees of freedom
+## Multiple R-squared:  0.1971, Adjusted R-squared:  0.1481 
+## F-statistic: 4.023 on 13 and 213 DF,  p-value: 6.688e-06</code></pre>
 </div>
 <div id="c.-what-are-the-statistically-significant-variables-in-this-model-what-is-the-value-of-the-multiple-r-squared-statistic-and-what-does-this-value-mean-overall-is-this-a-good-prediction-model" class="section level4">
 <h4>5c. What are the statistically significant variables in this model?
@@ -592,11 +590,11 @@ data.</h4>
 prediction_class &lt;- ifelse(predict(fit_class, newdata = heart_test, type = &#39;response&#39;) &lt; 0.5, 0, 1)
 
 sum(heart_test$target == prediction_class)/length(prediction_class)</code></pre>
-<pre><code>## [1] 0.8552632</code></pre>
+<pre><code>## [1] 0.8157895</code></pre>
 </div>
 <div id="b.-what-percent-of-the-time-is-this-model-accurate" class="section level4">
 <h4>6b. What percent of the time is this model accurate?</h4>
-<pre class="r"><code>#80.26316% of the time this model is accurate</code></pre>
+<pre class="r"><code>#81.57895% of the time this model is accurate</code></pre>
 </div>
 </div>
 </div>
