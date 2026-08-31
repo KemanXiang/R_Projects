@@ -1,0 +1,145 @@
+---
+title: "Basic Data Processing using tidyverse and ggplot"
+output: html_document
+author: "Keman Xiang"
+---
+  
+## Background for this activity
+  
+In this notebook, we are going to install and load `R` packages; use functions to view, clean, and visualize data; and use `R markdown` to document our analysis.    
+  
+## Step 1: Using `R packages`
+  `Packages` are a key part of working with `R.`They contain bundles of code called `functions` that allow us to perform a wide range of tasks in `R.` 
+
+Some `packages` are installed by default, but many others can be downloaded from an external source such as the Comprehensive R Archive Network, or CRAN.
+
+In this notebook, we will be using a package called `tidyverse.` The `tidyverse` package is actually a collection individual `packages` that can help we perform a wide variety of analysis tasks.
+
+Install the `tidyverse` package:
+
+install.packages("tidyverse")
+
+Once a package is installed, we can load it by running the `library()` function:
+
+```{r}
+library(tidyverse)
+```
+we  get a report that summarizes what packages oure loaded because we ran the `library()` function. The report will also let we know we if there are any `functions` that have a conflict, but we don't need to worry about that for now.  
+
+Now that we have loaded an `R package,` we can start exploring some data. 
+
+# Step 2: Viewing data
+
+Many of the `tidyverse` packages contain sample datasets that we can use to practice our `R` skills. The `diamonds` dataset in the `ggplot2` package is a great dataset for previewing `R` functions. 
+
+Because we already loaded this package in the last step, the `diamonds` dataset is ready for we to use.
+
+We use the `head()` function to display the columns and the first several rows of data.
+
+```{r}
+head(diamonds)
+```
+
+In addition to `head()` there are a number of other useful functions we can use to summarize or preview the data. 
+For example, the `str()` and `glimpse()` functions will both return summaries of each column in our data arranged horizontally. we can try out these two functions:
+
+```{r}
+str(diamonds)
+```
+
+```{r}
+glimpse(diamonds)
+```
+
+We also use the `colnames()` function to return a list of column names from our dataset. 
+
+```{r}
+colnames(diamonds)
+```
+
+After running the code chunk, we may have noticed a number in brackets. This number helps we count the number of columns in our dataset. If we have data with lots of columns and `colnames()` prints the results on multiple lines, each line will have a number in brackets at the start of the line indicating what number column that is! So, for example, "carat" is the first column in the `diamonds` dataset. On the second line, there is the number seven in brackets; "price" is the seventh column. 
+
+## Step 3: Cleaning data
+
+One of the most frequent tasks we will have to perform as an analyst is to clean and organize our data. `R` makes this easy! There are many functions we can use to help we perform important tasks easily and quickly. 
+
+First, we need to rename the columns, or variables, in our data using `rename().` 
+
+```{r}
+rename(diamonds, carat_new = carat)
+```
+
+Here, the function is being used to change the name of `carat` to `carat_new`. This is a pretty basic change, but `rename()` has many options that can help we do more complex changes across all of the variables in our data.
+
+Or we can rename more than one variable in the same `rename()` code. 
+
+```{r}
+rename(diamonds, carat_new = carat, cut_new = cut)
+```
+
+Second, we then summarize our data using `summarize().` we can use it to generate a wide range of summary statistics for our data. For example, if we wanted to know what the mean for `carat` was in this dataset, we could run the code in the chunk below:
+
+```{r}
+summarize(diamonds, mean_carat = mean(carat))
+```
+
+These functions are a great way to get more familiar with our data and start making observations about it. But sometimes, previewing tables isn't enough to understand a dataset. Luckily, `R` has visualization tools built in. 
+
+## Step 4: Visualizing data
+With `R,` we can create data visualizations that are simple and easy to understand or complicated and beautiful just by changing a bit of code. `R` empoours us to present the same data in so many different ways, which can help us create new insights or highlight important data findings.  One of the most commonly used visualization packages is the `ggplot2` package, which is loaded automatically when we install and load `tidyverse.` The `diamonds` dataset that we have been using so far is a `ggplot2` dataset.
+
+To build a visualization with `ggplot2` we layer plot elements together with a `+` symbol. 
+  
+```{r}
+ggplot(data = diamonds, aes(x = carat, y = price)) +
+  geom_point()
+```
+
+The code above takes the `diamonds` data, plots the carat column on the X-axis, the price column on the Y-axis, and represents the data as a scatter plot using the `geom_point()` command. 
+
+`ggplot2` makes it easy to modify or improve our visuals. For example, if we wanted to change the color of each point so that it represented another variable, such as the cut of the diamond, we can change the code like this:
+  
+```{r}
+ggplot(data = diamonds, aes(x = carat, y = price, color = cut)) +
+  geom_point()
+```
+
+
+Wow, that's a busy visual! Sometimes when we are trying to represent many different aspects of our data in a visual, it can help to separate out some of the components. For example, we could create a different plot for each type of cut. `ggplot2` makes it easy to do this with the `facet_wrap()` function:
+
+```{r}
+ggplot(data = diamonds, aes(x = carat, y = price, color = cut)) +
+  geom_point() +
+  facet_wrap(~cut)
+```
+
+
+## Step 5: Documentation
+
+we have been working in an `R markdown` file, which allows we to put code and writing in the same place. Markdown is a simple language for adding formatting to text documents. For example, all of the section headers have been formatted by adding `##` to the beginning of the line. Markdown can be used to format the text in other ways, such as creating bulleted lists:
+
+- So if we have a list of things
+- Or want to write bullets for another reason
+- we can do that using markdown
+
+When we have written, executed, and documented our code in an `R markdown` document like this, we can use the `knit` button in the menu bar at the top of the editing pane to export our work to a beautiful, readable document for others. 
+
+## Wrap-up
+We installed and loaded `R packages`; functions for viewing, cleaning, and visualizing data; and used `R markdown`to export our work. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
