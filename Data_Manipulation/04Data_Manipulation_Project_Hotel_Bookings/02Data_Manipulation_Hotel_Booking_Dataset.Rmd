@@ -1,0 +1,181 @@
+---
+title: "Data Manipulation with Hotel Booking Dataset"
+output: html_document
+author: "Keman Xiang"
+---
+
+## Background
+In this notebook, we€™ll focus on manipulating and changing real data in R. we utilize functions to manipulate our data, use statistical summaries to explore our data, and gain initial insights for our stakeholders. 
+
+## The Scenario
+In this scenario, we are junior data analysts working for a hotel booking company. we have been asked to clean a .csv file that was created after querying a database to combine two different tables from different hotels. we have already performed some basic cleaning functions on this data; this notebook will focus on using functions to conduct basic data manipulation.
+
+## Step 1: Load packages
+
+Start by installing the required packages. 
+```{r install packages}
+#install.packages("tidyverse")
+#install.packages("skimr")
+#install.packages("janitor")
+```
+
+load packages:
+
+```{r load packages}
+library(tidyverse)
+library(skimr)
+library(janitor)
+```
+
+## Step 2: Import data
+
+The data in this example is originally from the article Hotel Booking Demand Datasets (https://www.sciencedirect.com/science/article/pii/S2352340918315191), written by Nuno Antonio, Ana Almeida, and Luis Nunes for Data in Brief, Volume 22, February 2019.
+
+The data was downloaded and cleaned by Thomas Mock and Antoine Bichat for #TidyTuesday during the week of February 11th, 2020 (https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-02-11/readme.md).
+
+We can learn more about the dataset here:
+https://www.kaggle.com/jessemostipak/hotel-booking-demand
+
+Import data from a .csv in the project folder called "hotel_bookings.csv" and save it as a data frame called `hotel_bookings`:
+
+```{r load dataset}
+hotel_bookings <- read_csv("hotel_bookings.csv")
+```
+
+## Step 3: Getting to know our data
+
+Like we have been doing in other notebooks, use the `head()` function to preview the columns and the first several rows of data 
+
+```{r head function}
+head(hotel_bookings)
+```
+### Data Analysis 
+
+1. How many columns are in this data set?
+There are 32 columns in this data set. The `head()` function returns a preview of the data set, including the first six rows of data and as many columns as will fit on the screen. At the bottom left of the table, it states that it is previewing 1-4 of 32 columns. 
+
+2. The 'arrival_date_month' variable is chr or character type data.  
+Underneath the column name in the preview table, there is a description of the data type for each column. 
+
+In addition to `head()` we can also use the `str()` and `glimpse()` functions to get summaries of each column in our data arranged horizontally. 
+```{r str function}
+str(hotel_bookings)
+```
+
+we can see the different column names and some sample values to the right of the colon. 
+
+```{r glimpse function}
+glimpse(hotel_bookings)
+```
+
+we can also use `colnames()` to get the names of the columns in our data set. 
+
+```{r colnames function}
+colnames(hotel_bookings)
+```
+
+## Manipulating our data
+
+Let's say we want to arrange the data by most lead time to least lead time because we want to focus on bookings that were made far in advance. We decide we want to try using the `arrange()` function: 
+
+```{r arrange function}
+arrange(hotel_bookings, lead_time)
+```
+
+`arrange()`  automatically orders by ascending order, and we need to specifically tell it when to order by descending order:
+
+```{r arrange function descending} 
+arrange(hotel_bookings, desc(lead_time))
+```
+## Insight
+
+The highest lead time for a hotel booking in this data set is 737 days. 
+After using the arrange() function to sort the hotel_bookings by lead time in descending order, we will notice that 737 is the first row. That is over two years in advance!
+
+Notice that when we just run `arrange()` without saving our data to a new data frame, it does not alter the existing data frame. Check it out by running `head()` again to find out if the highest lead times are first: 
+
+```{r head function part two}
+head(hotel_bookings)
+```
+
+If we wanted to create a new data frame that had those changes saved, we would use the <- as written in the code chunk below to store the arranged data in a data frame named 'hotel_bookings_v2'
+
+```{r new dataframe}
+hotel_bookings_v2 <-
+  arrange(hotel_bookings, desc(lead_time))
+```
+
+Check out the new data frame: 
+
+```{r new dataframe part two}
+head(hotel_bookings_v2)
+```
+
+We can also find out the maximum and minimum lead times without sorting the whole data set using the `arrange()` function. Let's use the max() and min() functions:
+
+```{r}
+max(hotel_bookings$lead_time)
+```
+
+```{r}
+min(hotel_bookings$lead_time)
+```
+
+In this case, we need to specify which data set and which column using the $ symbol between their names. 
+
+Let's say we just want to know what the average lead time for booking is because our boss asks we how early we should run promotions for hotel rooms. we can use the `mean()`function to answer that question:
+
+```{r mean}
+mean(hotel_bookings$lead_time)
+```
+
+We should get the same answer even if we use the v2 data set that included the `arrange()` function. 
+
+```{r mean part two}
+mean(hotel_bookings_v2$lead_time)
+```
+
+## Insight
+
+The average lead time is 104.0114 days.  
+
+We were able to report to our boss what the average lead time before booking is, but now they want to know what the average lead time before booking is for just city hotels. They want to focus the promotion they're running by targeting major cities.
+
+We know that our first step will be creating a new data set that only contains data about city hotels. We can do that using the `filter()` function, and name our new data frame 'hotel_bookings_city':
+
+```{r filter}
+hotel_bookings_city <- 
+  filter(hotel_bookings, hotel_bookings$hotel=="City Hotel")
+```
+
+Check out our new data set:
+
+```{r new dataset}
+head(hotel_bookings_city)
+```
+
+We quickly check what the average lead time for this set of hotels is, just like we did for all of hotels before:
+
+```{r average lead time city hotels}
+mean(hotel_bookings_city$lead_time)
+```
+
+Now, our boss wants to know a lot more information about city hotels, including the maximum and minimum lead time. They are also interested in how they are different from resort hotels. We don't want to run each line of code over and over again, so we decide to use the `group_by()`and`summarize()` functions. we can also use the pipe operator to make our code easier to follow. we will store the new data set in a data frame named 'hotel_summary':
+
+```{r group and summarize}
+hotel_summary <- 
+  hotel_bookings %>%
+  group_by(hotel) %>%
+  summarise(average_lead_time=mean(lead_time),
+            min_lead_time=min(lead_time),
+            max_lead_time=max(lead_time))
+```
+
+Check out our new data set using head() again:
+
+```{r}
+head(hotel_summary)
+```
+
+## Activity Wrap Up
+We used functions to change our data, such as `arrange()`, `group_by()`, and `filter()`. We also had some experience using statistical summaries to make insights into our data. 
