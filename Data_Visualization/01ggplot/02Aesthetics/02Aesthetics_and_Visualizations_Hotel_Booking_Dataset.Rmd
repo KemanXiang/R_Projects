@@ -1,0 +1,116 @@
+---
+title: "Aesthetics and Visualizations Using Hotel Booking Dataset"
+output: html_document
+author: "Keman Xiang"
+---
+
+## Background for this activity
+In this notebook, we'll review a scenario, and continue to apply our knowledge of data visualization with ggplot2. we will apply the aesthetic features of visualizations and customize them by specific criteria. 
+
+## The Scenario
+In this notebook, we are junior data analysts working for the same hotel booking company from earlier. Last time, we created some simple visualizations with `ggplot2` to give our stakeholders quick insights into our data. Now, we are are interested in creating visualizations that highlight different aspects of the data to present to our stakeholder. we are going to expand on `ggplot2` and create new kinds of visualizations like bar charts.  
+
+
+## Step 1: Import our data
+
+The data in this example is originally from the article Hotel Booking Demand Datasets (https://www.sciencedirect.com/science/article/pii/S2352340918315191), written by Nuno Antonio, Ana Almeida, and Luis Nunes for Data in Brief, Volume 22, February 2019.
+
+The data was downloaded and cleaned by Thomas Mock and Antoine Bichat for #TidyTuesday during the week of February 11th, 2020 (https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-02-11/readme.md).
+
+we can learn more about the dataset here:
+https://www.kaggle.com/jessemostipak/hotel-booking-demand
+
+Read in the file 'hotel_bookings.csv' into a data frame:
+
+```{r}
+hotel_bookings <- read.csv("hotel_bookings.csv")
+```
+
+## Step 2: Refresh our Memory
+
+By now, we are pretty familiar with this data set. But we can refresh our memory with the `head()` and `colnames()` functions. 
+
+```{r look at data}
+head(hotel_bookings)
+```
+
+```{r look at column names}
+colnames(hotel_bookings)
+```
+
+## Step 3: Install and load the 'ggplot2' package 
+
+```{r loading and installing ggplot2, echo=FALSE, message=FALSE}
+#install.packages('ggplot2')
+library(ggplot2)
+```
+
+## Step 4: Making a Bar Chart
+
+Previously in my last notebook, we used `geom_point` to make a scatter plot comparing lead time and number of children. Now, we will use `geom_bar` to make a bar chart:
+
+```{r example chart}
+ggplot(data = hotel_bookings) +
+  geom_bar(mapping = aes(x = distribution_channel))
+```
+
+## Insight
+
+What distribution type has the most number of bookings?
+  The TA/TO distribution type has the most number of bookings.
+
+## Step 5: Diving deeper into bar charts
+
+After exploring our bar chart, our stakeholder has more questions. Now they want to know if the number of bookings for each distribution type is different depending on whether or not there was a deposit or what market segment they represent. 
+
+We will use 'fill=deposit_type' to accomplish this.
+
+```{r pressure2, echo=FALSE}
+ggplot(data = hotel_bookings) +
+  geom_bar(mapping = aes(x = distribution_channel, fill=deposit_type))
+```
+
+Now answering the question about different market segments. We will use 'fill=market_segment' to accomplish this.
+
+```{r pressure, echo=FALSE}
+ggplot(data = hotel_bookings) +
+  geom_bar(mapping = aes(x = distribution_channel, fill=market_segment))
+```
+## Step 6: Facets galore
+
+After reviewing the new charts, our stakeholder asks us to create separate charts for each deposit type and market segment to help them understand the differences more clearly.
+
+Create a different chart for each deposit type:
+```{r creating a plot again}
+ggplot(data = hotel_bookings) +
+  geom_bar(mapping = aes(x = distribution_channel)) +
+  facet_wrap(~deposit_type)
+```
+
+Create a different chart for each market segment:
+```{r creating a plot.}
+ggplot(data = hotel_bookings) +
+  geom_bar(mapping = aes(x = distribution_channel)) +
+  facet_wrap(~market_segment)
+```
+
+The `facet_grid` function does something similar. The main difference is that `facet_grid` will include plots even if they are empty. 
+
+```{r creating a plot}
+ggplot(data = hotel_bookings) +
+  geom_bar(mapping = aes(x = distribution_channel)) +
+  facet_grid(~deposit_type)
+```
+
+Now, we could put all of this in one chart and explore the differences by deposit type and market segment.
+
+```{r creating a plot..}
+ggplot(data = hotel_bookings) +
+  geom_bar(mapping = aes(x = distribution_channel)) +
+  facet_wrap(~deposit_type~market_segment)
+```
+
+These charts are probably overwhelming and too hard to read, but it can be useful if we are exploring our data through visualizations.  
+
+## Wrap Up
+The `ggplot2` package allows we to create a variety of visualizations in `R`, from simple scatter plots to complicated, multi-faceted bar charts. 
