@@ -1,0 +1,145 @@
+---
+title: "Annotations Using ggplot2 - Hotel Booking Dataset"
+output: html_document
+author: "Keman Xiang"
+---
+
+## Background
+
+In this notebook, we'll review a scenario, and add annotations to a data visualization with ggplot2. We will also save images from ggplot2 visualizations so that we can add them directly to presentations. 
+
+## The Scenario
+
+As junior data analysts for a hotel booking company, we have been creating visualizations in `R` with the `ggplot2`  package to share insights about our data with stakeholders. After creating a series of visualizations using `ggplot()`, `ggplot2` aesthetics, and filters, our stakeholder asks we to add annotations to our visualizations to help explain our findings in a presentation. Luckily, `ggplot2` has annotation functions built in.  
+
+## Step 1: Import our data
+
+The data in this example is originally from the article Hotel Booking Demand Datasets (https://www.sciencedirect.com/science/article/pii/S2352340918315191), written by Nuno Antonio, Ana Almeida, and Luis Nunes for Data in Brief, Volume 22, February 2019.
+
+The data was downloaded and cleaned by Thomas Mock and Antoine Bichat for #TidyTuesday during the week of February 11th, 2020 (https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-02-11/readme.md).
+
+We can learn more about the dataset here:
+https://www.kaggle.com/jessemostipak/hotel-booking-demand
+
+Fead in the file 'hotel_bookings.csv' into a data frame: 
+
+```{r}
+hotel_bookings <- read.csv("hotel_bookings.csv")
+```
+
+## Step 2: Refresh Our Memory
+
+By now, we are pretty familiar with this data set. But we can refresh our memory with the `head()` and `colnames()` functions. 
+
+```{r look at data}
+head(hotel_bookings)
+```
+
+```{r look at column names}
+colnames(hotel_bookings)
+```
+
+## Step 3: Install and load the 'ggplot2' package 
+
+```{r loading and installing ggplot2, echo=FALSE, message=FALSE}
+#install.packages('ggplot2')
+library(ggplot2)
+```
+
+## Step 4: Annotating our chart
+
+As a refresher, here is the chart we created before:
+```{r faceting a plot}
+ggplot(data = hotel_bookings) +
+  geom_bar(mapping = aes(x = market_segment)) +
+  facet_wrap(~hotel)
+```
+
+The first step will be adding a title; that is often the first thing people will pay attention to when they encounter a data visualization for the first time. To add a title, we will add `labs()` at the end of our `ggplot()` command and then input a title there:
+
+```{r faceting a plot with a title}
+ggplot(data = hotel_bookings) +
+  geom_bar(mapping = aes(x = market_segment)) +
+  facet_wrap(~hotel) +
+  labs(title="Comparison of market segments by hotel type for hotel bookings")
+```
+
+
+We also want to add another detail about what time period this data covers. To do this, we need to find out when the data is from. 
+
+We realize we can use the `min()` function on the year column in the data:
+
+```{r earliest year}
+min(hotel_bookings$arrival_date_year)
+```
+ 
+And the `max()` function:
+```{r latest year}
+max(hotel_bookings$arrival_date_year)
+```
+
+But we will need to save them as variables in order to easily use them in our labeling: 
+```{r latest date}
+mindate <- min(hotel_bookings$arrival_date_year)
+maxdate <- max(hotel_bookings$arrival_date_year)
+```
+
+Now, we will add in a subtitle using `subtitle=` in the `labs()` function. Then, we can use the `paste0()` function to use our newly-created variables in our labels. This is really handy, because if the data gets updated and there is more recent data added, we don't have to change the code below because the variables are dynamic:
+
+```{r city bar chart with timeframe}
+ggplot(data = hotel_bookings) +
+  geom_bar(mapping = aes(x = market_segment)) +
+  facet_wrap(~hotel) +
+  labs(title="Comparison of market segments by hotel type for hotel bookings",
+       subtitle=paste0("Data from: ", mindate, " to ", maxdate))
+```
+
+We decide to switch the `subtitle`  to a `caption` which will appear in the bottom right corner instead.
+
+```{r city bar chart with timeframe as caption}
+ggplot(data = hotel_bookings) +
+  geom_bar(mapping = aes(x = market_segment)) +
+  facet_wrap(~hotel) +
+  labs(title="Comparison of market segments by hotel type for hotel bookings",
+       caption=paste0("Data from: ", mindate, " to ", maxdate))
+```
+
+Now we want to clean up the x and y axis labels to make sure they are really clear. To do that, we can add to the `labs()` function and use `x=` and `y=`. 
+
+```{r city bar chart with x and y axis}
+ggplot(data = hotel_bookings) +
+  geom_bar(mapping = aes(x = market_segment)) +
+  facet_wrap(~hotel) +
+  labs(title="Comparison of market segments by hotel type for hotel bookings",
+       caption=paste0("Data from: ", mindate, " to ", maxdate),
+       x="Market Segment",
+       y="Number of Bookings")
+```
+
+## Step 5: Saving our chart
+
+The `ggsave()` function was used to save the last plot that was generated, so if we have run something after running the code chunk above, then run that code chunk again. 
+
+Then we save that plot as a .png file named `city_payment_chart`, which makes it clear to our stakeholders what the .png file contains. 
+
+```{r save our plot}
+ggsave('hotel_booking_chart.png')
+```
+
+### Tip
+Tthe default dimensions that `ggsave()` saved our image as are 7x7.
+
+We can see these dimensions listed after we run the code chunk. 
+
+If we wanted to make our chart bigger and more rectangular to fit the slide show presentation, we could specify the height and width of our .png in the `ggsave()` command. Let's create a 16x8 .png image: 
+
+```{r save our plot with 16*8}
+ggsave('hotel_booking_chart.png',
+       width=16,
+       height=8)
+```
+
+
+## Wrap Up
+
+Now we have finished creating and exporting a data visualization with annotations in `ggplot2`, we can share what we created with key stakeholders to give them insights into our data findings. 
