@@ -1,0 +1,75 @@
+---
+title: "GGPlot For Visualization"
+output: html_document
+author: "Keman Xiang"
+---
+
+## Background
+
+In this notebook, we€™ll review a scenario, and use ggplot2 to quickly create data visualizations that allow us to explore our data and gain new insights. We will use basic ggplot2 syntax and perform data visualization in R. 
+
+## The Scenario
+
+In this scenario, we are junior data analysts working for a hotel booking company. we have cleaned and manipulated our data, and gotten some initial insights we would like to share. Now, we are going to create some simple data visualizations with the `ggplot2` package. we will use basic `ggplot2` syntax and troubleshoot some common errors we might encounter.    
+
+## Step 1: Import our data 
+
+The data in this example is originally from the article Hotel Booking Demand Datasets (https://www.sciencedirect.com/science/article/pii/S2352340918315191), written by Nuno Antonio, Ana Almeida, and Luis Nunes for Data in Brief, Volume 22, February 2019.
+
+The data was downloaded and cleaned by Thomas Mock and Antoine Bichat for #TidyTuesday during the week of February 11th, 2020 (https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-02-11/readme.md).
+
+we can learn more about the dataset here:
+https://www.kaggle.com/jessemostipak/hotel-booking-demand
+
+Import data from a .csv in the project folder called "hotel_bookings.csv" and save it as a data frame called `hotel_bookings`:
+
+```{r load data}
+hotel_bookings <- read.csv("hotel_bookings.csv")
+```
+## Step 2: Look at a sample of our data
+
+Use the head() function to preview our data: 
+```{r examining our data}
+head(hotel_bookings)
+```
+
+We can also use colnames() to get the names of all the columns in our data set. 
+
+```{r look at column names}
+colnames(hotel_bookings)
+```
+
+## Step 3: Install and load the 'ggplot2' package
+
+If we haven't already installed and loaded the `ggplot2` package, we will need to do that before we can use the `ggplot()` function. 
+
+```{r loading and installing ggplot2, echo=FALSE, message=FALSE}
+#install.packages('ggplot2')
+library(ggplot2)
+```
+
+## Step 4: Begin creating a plot
+
+We can use `ggplot2` to determine if people with children book hotel rooms in advance. 
+
+```{r creating a plot}
+ggplot(data = hotel_bookings) +
+  geom_point(mapping = aes(x = lead_time, y = children))
+```
+
+On the x-axis, the plot shows how far in advance a booking is made, with the bookings furthest to the right happening the most in advance. On the y-axis it shows how many children there are in a party.
+
+## Step 5: Try mapping 'stays_in_weekend_nights' on the x-axis
+
+Try mapping 'stays_in_weekend_nights' on the x-axis and 'children' on the y-axis
+
+```{r}
+ggplot(data = hotel_bookings) +
+ geom_point(mapping = aes(x = stays_in_weekend_nights, y = children))
+```
+
+We now have a scatterplot with 'stays_in_weekend_nights' on the x-axis and 'children' on the y-axis. 
+
+
+## Activity Wrap Up
+The `ggplot2` package allows we to quickly create data visualizations that can answer questions and give we insights about our data. 
