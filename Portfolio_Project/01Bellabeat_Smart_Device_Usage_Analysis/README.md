@@ -55,7 +55,7 @@ The evidence is hypothesis-generating rather than causal or population-represent
 
 (For related .rmd file and plots, please refer to my [GitHub directory](https://github.com/KemanXiang/R_Projects/tree/7e5bb6f636d20e2dbbf80acc572ac98b63ec4abb/Portfolio_Project/01Bellabeat_Smart_Device_Usage_Analysis)
 
-You can also view my R outputs on [RPub](http://rpubs.com/KemanXiang/1456053).
+You can also view my R outputs on [RPub](http://rpubs.com/KemanXiang/1456053).)
 
 ---
 
