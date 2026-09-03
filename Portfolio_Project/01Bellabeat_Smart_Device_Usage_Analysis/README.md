@@ -20,28 +20,28 @@ Executive Summary	2
 1. Ask: Business Task and Research Questions	3
 2. Prepare: Data Sources and Scope	3
 Data limitations	3
-3. Process: Data Preparation and Quality Assessment	4
-3.1 Initial inspection	4
-3.2 Cleaning and validation	4
+3. Process: Data Preparation and Quality Assessment	4 <br>
+3.1 Initial inspection	4<br>
+3.2 Cleaning and validation	4<br>
 3.3 A critical join correction	4
 4. Analyze: Descriptive Analysis	4
-4.1 Activity profile	4
+4.1 Activity profile	4<br>
 4.2 Sleep profile	4
-5. Relationships and Visual Analysis	4
-5.1 Daily steps and Sedentary time	4
-5.2 Very active minutes and Calories	5
-5.3 Sleep duration and Time in bed	6
-5.4 Sleep duration and Daily steps	7
-5.5. Additional Behavioral Pattern: Day of Week	7
+5. Relationships and Visual Analysis	4<br>
+5.1 Daily steps and Sedentary time	4<br>
+5.2 Very active minutes and Calories	5<br>
+5.3 Sleep duration and Time in bed	6<br>
+5.4 Sleep duration and Daily steps	7<br>
+5.5. Additional Behavioral Pattern: Day of Week	7<br>
 5.6. Sleep-duration distribution	8
 6. Key Findings	9
-7. Business Insights and Marketing Implications	10
-7.1 Product positioning: from tracking to personalized wellness guidance	10
-7.2 Behavioral segmentation opportunity	10
-7.3 Content strategy	10
+7. Business Insights and Marketing Implications	10<br>
+7.1 Product positioning: from tracking to personalized wellness guidance	10<br>
+7.2 Behavioral segmentation opportunity	10<br>
+7.3 Content strategy	10<br>
 7.4 Timing of engagement	10
 8. Limitations	10
-9. Conclusion	11
+9. Conclusion	11<br>
 Appendix: Analytical Audit	11
 
 ## Executive Summary
@@ -236,17 +236,18 @@ These recommendations are hypotheses derived from the observed sample and should
 
 Several limitations constrain the conclusions:
 
-1.<b>Small and non-representative sample</b>. The activity data contain 33 users and the sleep data contain 24 users.
-2.<b>Limited observation period</b>. The records cover approximately one month in 2016.
-3.<b>No demographic variables. The dataset does not establish that participants represent Bellabeat’s female target market.
-4.<b>Third-party device data</b>. The data describe Fitbit users rather than Bellabeat users.
-5.<b>Missing sleep coverage</b>. Not every activity record has a corresponding sleep record.
-6.<b>Observational relationships</b>. Correlations describe associations and do not establish causation.
-7.<b>Potential tracker non-wea</b>r. Zero-step or extremely sedentary days may reflect non-wear or incomplete logging rather than true behavior.
+1. <b>Small and non-representative sample</b>. The activity data contain 33 users and the sleep data contain 24 users.
+2. <b>Limited observation period</b>. The records cover approximately one month in 2016.
+3. <b>No demographic variables</b>. The dataset does not establish that participants represent Bellabeat’s female target market.
+4. <b>Third-party device data</b>. The data describe Fitbit users rather than Bellabeat users.
+5. <b>Missing sleep coverage</b>. Not every activity record has a corresponding sleep record.
+6. <b>Observational relationships</b>. Correlations describe associations and do not establish causation.
+7. <b>Potential tracker non-wea</b>r. Zero-step or extremely sedentary days may reflect non-wear or incomplete logging rather than true behavior.
 
 For future analysis, current Bellabeat data, demographic information, longer observation windows, and more complete sleep/activity coverage would materially strengthen the evidence.
 
 ## 9. Conclusion
+
 This analysis demonstrates an end-to-end R workflow for transforming public smart-device data into business insights. The evidence indicates that sedentary behavior, activity intensity, sleep duration, and weekly activity patterns are useful dimensions for understanding wellness behavior.
 
 The strongest practical opportunity is not to optimize one metric in isolation, but to use multiple behavioral signals to deliver personalized and context-aware guidance. For Bellabeat, this supports a marketing strategy centered on <b>personalized wellness coaching, behavioral segmentation, and timely engagement</b>.
