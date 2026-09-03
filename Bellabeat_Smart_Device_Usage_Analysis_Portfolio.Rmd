@@ -1,0 +1,350 @@
+---
+title: "Bellabeat Smart Device Usage Analysis Project"
+author: "Keman Xiang"
+output:
+  pdf_document:
+    toc: true
+  html_notebook:
+    toc: true
+  html_document:
+    toc: true
+    df_print: paged
+---
+
+# Executive Summary
+
+This project analyzes public Fitbit fitness-tracker data to identify patterns in activity and sleep behavior and translate those patterns into high-level marketing implications for Bellabeat. The analysis uses two daily-level datasets: `dailyActivity_merged.csv` and `sleepDay_merged.csv`.
+
+The portfolio version of the analysis follows the case-study framework of **Ask, Prepare, Process, Analyze, Share, and Act**, while expanding the original notebook with explicit data-quality checks, reproducible transformations, relationship analysis, and interpretation.
+
+# 1. Ask: Business Task and Research Questions
+
+Bellabeat is a wellness technology company whose products connect users with information about activity, sleep, stress, hydration, and other aspects of daily wellness. The business task is to use non-Bellabeat smart-device data to understand user behavior and identify insights that can inform Bellabeat's marketing strategy.
+
+The analysis addresses the original case-study questions:
+
+1. What are some trends in smart-device usage?
+2. How could these trends apply to Bellabeat customers?
+3. How could these trends help influence Bellabeat marketing strategy?
+
+The analysis focuses on the **Bellabeat app** as the product context because the app can connect multiple wellness behaviors and translate tracker data into personalized guidance.
+
+# 2. Prepare: Data Sources and Scope
+
+The source case study identifies the FitBit Fitness Tracker Data, made available through Mobius, as the principal public dataset. The full source package contains multiple files at daily, hourly, and minute-level resolutions.
+
+For this project, two files were selected:
+
+- `dailyActivity_merged.csv`: daily activity measures including steps, distance, activity intensity, sedentary minutes, and calories.
+- `sleepDay_merged.csv`: daily sleep measures including sleep records, minutes asleep, and time in bed.
+
+The two files are complementary rather than redundant: the activity table provides a broad daily activity profile, while the sleep table adds a second dimension of wellness behavior.
+
+## Data limitations
+
+The dataset contains observations from a small group of Fitbit users over approximately one month. The activity file contains 33 distinct users, while the sleep file contains 24 distinct users. The dataset therefore does not represent a broad population sample, and the absence of demographic variables means that findings cannot be assumed to describe Bellabeat's female customer base specifically.
+
+The data are also from 2016 and therefore should be interpreted as behavioral evidence from an older smart-device ecosystem rather than as a current estimate of consumer behavior.
+
+# 3. Process: Data Import, Cleaning, and Validation
+
+## 3.1 Load packages
+
+```{r}
+library(tidyverse)
+library(here)
+library(skimr)
+library(janitor)
+library(readr)
+library(lubridate)
+```
+
+## 3.2 Import data
+
+```{r}
+daily_activity <- read_csv("dailyActivity_merged.csv")
+sleep_day <- read_csv("sleepDay_merged.csv")
+```
+
+## 3.3 Initial inspection
+
+```{r}
+head(daily_activity)
+glimpse(daily_activity)
+colnames(daily_activity)
+
+head(sleep_day)
+glimpse(sleep_day)
+colnames(sleep_day)
+
+n_distinct(daily_activity$Id)
+n_distinct(sleep_day$Id)
+
+nrow(daily_activity)
+nrow(sleep_day)
+```
+
+The activity table contains 940 daily observations from 33 users. The sleep table contains 413 records from 24 users.
+
+## 3.4 Standardize names and dates
+
+A key improvement over the original notebook is that cleaning operations are assigned back to the data frames so that the cleaned objects are actually used in subsequent analysis.
+
+```{r}
+daily_activity <- daily_activity %>%
+  clean_names() %>%
+  mutate(activity_date = mdy(activity_date))
+
+sleep_day <- sleep_day %>%
+  clean_names() %>%
+  mutate(sleep_day = mdy_hms(sleep_day))
+```
+
+## 3.5 Check missing values and duplicates
+
+```{r}
+sum(is.na(daily_activity))
+sum(is.na(sleep_day))
+
+sum(duplicated(daily_activity))
+sum(duplicated(sleep_day))
+
+sleep_day %>%
+  count(id, sleep_day) %>%
+  filter(n > 1)
+```
+
+The supplied files contain no missing values. The activity table has no duplicate rows. The sleep table contains three exact duplicate records; these are removed before merging.
+
+```{r}
+sleep_day <- sleep_day %>%
+  distinct()
+
+sleep_day <- sleep_day %>%
+  distinct(id, sleep_day, .keep_all = TRUE)
+```
+
+## 3.6 Data-quality observations
+
+The activity dataset contains some zero-step days and days with 1,440 sedentary minutes. These observations are retained rather than automatically deleted because a tracker may legitimately record a day with no detected steps. They should, however, be considered when interpreting averages.
+
+```{r}
+mean(daily_activity$total_steps == 0)
+mean(daily_activity$sedentary_minutes == 1440)
+mean(daily_activity$calories == 0)
+```
+
+# 4. Analyze: Descriptive Analysis
+
+## 4.1 Activity profile
+
+```{r}
+daily_activity %>%
+  select(total_steps,
+         total_distance,
+         very_active_minutes,
+         fairly_active_minutes,
+         lightly_active_minutes,
+         sedentary_minutes,
+         calories) %>%
+  summary()
+```
+
+Across 940 daily activity observations, the mean number of steps is approximately 7,638 per day. Mean sedentary time is approximately 991 minutes per day, while the mean is approximately 21 minutes of very active time, 14 minutes of fairly active time, and 193 minutes of lightly active time.
+
+The activity profile is therefore characterized by a substantial amount of sedentary time relative to recorded active time.
+
+## 4.2 Sleep profile
+
+```{r}
+sleep_day %>%
+  select(total_sleep_records,
+         total_minutes_asleep,
+         total_time_in_bed) %>%
+  summary()
+```
+
+The mean recorded sleep duration is approximately 419 minutes, or 6.99 hours, while mean time in bed is approximately 459 minutes, or 7.64 hours.
+
+The difference between time in bed and minutes asleep represents time spent in bed but not recorded as asleep. The mean difference is approximately 39 minutes.
+
+# 5. Relationships and Visual Analysis
+
+## 5.1 Steps and sedentary time
+
+```{r}
+ggplot(daily_activity,
+       aes(x = total_steps, y = sedentary_minutes)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Daily Steps and Sedentary Time",
+    x = "Total steps per day",
+    y = "Sedentary minutes per day"
+  )
+```
+
+The relationship is negative: days with more steps tend to have fewer sedentary minutes. Pearson's correlation is approximately **r = -0.33**, indicating a modest negative association. The relationship is not strong enough to imply that increasing steps alone determines sedentary behavior, but it supports the idea that activity and sedentary behavior are related dimensions of daily behavior.
+
+This is useful for segmentation because Bellabeat could distinguish between users who are already active and users whose main opportunity is reducing prolonged sedentary time.
+
+## 5.2 Very active minutes and calories
+
+```{r}
+ggplot(daily_activity,
+       aes(x = very_active_minutes, y = calories)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Very Active Time and Calories Burned",
+    x = "Very active minutes per day",
+    y = "Calories burned per day"
+  )
+```
+
+Very active minutes have a moderate positive relationship with calories burned (**r ≈ 0.62**). This indicates that days with more vigorous activity tend to coincide with higher recorded energy expenditure. This is a stronger relationship than the steps-versus-sedentary association and provides a clear example of how activity intensity can be used as a meaningful behavioral signal.
+
+## 5.3 Sleep duration and time in bed
+
+```{r}
+ggplot(sleep_day,
+       aes(x = total_minutes_asleep, y = total_time_in_bed)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Sleep Duration and Time in Bed",
+    x = "Minutes asleep",
+    y = "Minutes in bed"
+  )
+```
+
+Sleep duration and time in bed are very strongly associated (**r ≈ 0.93**). This is expected because time asleep is a major component of time in bed, but the difference between the two variables is still informative: users can spend considerable time in bed without that entire period being recorded as sleep.
+
+## 5.4 Sleep duration and daily steps
+
+Before combining the datasets, dates are standardized and the tables are joined by **user ID and date**. This is important because joining only on `Id` would match each user's sleep observations to every activity day for that user and would artificially duplicate observations.
+
+```{r}
+combined_data <- daily_activity %>%
+  inner_join(
+    sleep_day,
+    by = c("id" = "id", "activity_date" = "sleep_day")
+  )
+```
+
+```{r}
+ggplot(combined_data,
+       aes(x = total_minutes_asleep, y = total_steps)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Sleep Duration and Daily Steps",
+    x = "Minutes asleep",
+    y = "Total steps"
+  )
+```
+
+The matched daily observations show a weak negative association between sleep duration and steps (**r ≈ -0.19**). This association is small in practical terms and should not be interpreted causally. At the individual-user level, the relationship is even less conclusive, so the evidence does not support a strong claim that people who sleep longer necessarily walk less or more.
+
+The more defensible business insight is that sleep and activity are related wellness dimensions that can be monitored together, rather than treated as independent behaviors.
+
+# 6. Additional Behavioral Pattern: Day of Week
+
+```{r}
+daily_activity %>%
+  mutate(day_of_week = weekdays(activity_date)) %>%
+  group_by(day_of_week) %>%
+  summarise(
+    average_steps = mean(total_steps),
+    observations = n()
+  )
+```
+
+Average recorded steps are highest on Saturday and Tuesday in this sample and lowest on Sunday. The weekday pattern suggests that activity is not uniform across the week.
+
+Because the differences are observational and the sample is small, these results should be used as a hypothesis for marketing experimentation rather than as a universal behavioral rule.
+
+# 7. Key Findings
+
+**Finding 1 — Sedentary behavior is a meaningful component of daily activity.**  
+The average day contains approximately 991 sedentary minutes, and higher sedentary time is associated with fewer steps. This suggests an opportunity for interventions focused not only on exercise but also on breaking up sedentary periods.
+
+**Finding 2 — Vigorous activity is strongly connected with recorded calorie expenditure.**  
+Very active minutes show a moderate positive association with calories burned. Activity intensity can therefore provide a useful behavioral signal for personalized feedback.
+
+**Finding 3 — Sleep duration is generally below eight hours in the observed records.**  
+The mean sleep duration is approximately 6.99 hours. Only about 28% of recorded sleep observations reach eight hours or more, while about 24% are below six hours. These descriptive results indicate substantial variation in sleep behavior.
+
+**Finding 4 — Sleep and activity should be considered together.**  
+The matched data show only a weak negative relationship between sleep duration and daily steps. Rather than supporting a simple “more sleep means fewer steps” conclusion, the data suggest that sleep and physical activity should be treated as complementary dimensions of wellness.
+
+**Finding 5 — Weekly behavior varies.**  
+Average steps differ by day of week, with Saturday showing the highest average in this sample and Sunday the lowest. This creates a potential basis for time-sensitive engagement strategies.
+
+# 8. Business Insights and Marketing Implications
+
+## 8.1 Product positioning: from tracking to personalized wellness guidance
+
+The data suggest that users generate multiple behavioral signals—activity, sedentary time, and sleep—that can be interpreted together. For Bellabeat, this supports positioning the app not merely as a tracker, but as a tool that helps users understand relationships among everyday wellness behaviors.
+
+## 8.2 Segmentation opportunity
+
+A practical segmentation framework could distinguish:
+
+- **Active users:** higher activity and lower sedentary time.
+- **Sedentary users:** relatively low steps and high sedentary time.
+- **Sleep-focused users:** users with limited sleep duration or large gaps between time in bed and time asleep.
+- **Balanced users:** relatively consistent activity and sleep patterns.
+
+The available data do not contain demographic information, so these should be treated as **behavioral segments**, not demographic segments.
+
+## 8.3 Content strategy
+
+Marketing content could emphasize small, measurable behavior changes:
+
+- movement reminders for sedentary users;
+- activity goals for users seeking greater daily movement;
+- sleep-awareness content for users with short sleep duration;
+- weekly summaries that connect activity and sleep rather than reporting isolated metrics.
+
+## 8.4 Timing of engagement
+
+The observed day-of-week differences suggest an opportunity to test whether engagement messages perform differently across the week. For example, Bellabeat could experiment with weekend movement prompts or end-of-week wellness summaries.
+
+These recommendations are hypotheses derived from the observed sample and should be validated through current Bellabeat product data and controlled marketing experiments.
+
+# 9. Limitations
+
+Several limitations constrain the conclusions:
+
+1. **Small and non-representative sample.** The activity data contain 33 users and the sleep data contain 24 users.
+2. **Limited observation period.** The records cover approximately one month in 2016.
+3. **No demographic variables.** The dataset does not establish that participants represent Bellabeat's female target market.
+4. **Third-party device data.** The data describe Fitbit users rather than Bellabeat users.
+5. **Missing sleep coverage.** Not every activity record has a corresponding sleep record.
+6. **Observational relationships.** Correlations describe associations and do not establish causation.
+7. **Potential tracker non-wear.** Zero-step or extremely sedentary days may reflect non-wear or incomplete logging rather than true behavior.
+
+For future analysis, current Bellabeat data, demographic information, longer observation windows, and more complete sleep/activity coverage would materially strengthen the evidence.
+
+# 10. Conclusion
+
+This analysis demonstrates an end-to-end R workflow for transforming public smart-device data into business insights. The evidence indicates that sedentary behavior, activity intensity, sleep duration, and weekly activity patterns are useful dimensions for understanding wellness behavior.
+
+The strongest practical opportunity is not to optimize one metric in isolation, but to use multiple behavioral signals to deliver personalized and context-aware guidance. For Bellabeat, this supports a marketing strategy centered on **personalized wellness coaching, behavioral segmentation, and timely engagement**.
+
+The findings should be regarded as hypothesis-generating rather than causal or population-representative. Their primary value is demonstrating how a reproducible analytical workflow can move from raw device data to interpretable business questions, evidence-based insights, and testable marketing recommendations.
+
+# Appendix A: Reproducibility Notes
+
+The analysis is implemented in R using `tidyverse`, `janitor`, `lubridate`, `skimr`, `here`, and `readr`.
+
+The portfolio version explicitly records the data-cleaning decisions, validates duplicate and missing records, standardizes dates before joining, and joins activity and sleep observations at the **user-date level**.
+
+# Appendix B: Original Course Framework
+
+The project follows the original Google Data Analytics case-study structure:
+
+**Ask → Prepare → Process → Analyze → Share → Act**
+
+The original case study asks analysts to identify the business task, describe data sources, document cleaning, summarize analysis, communicate findings visually, and provide high-level recommendations.
